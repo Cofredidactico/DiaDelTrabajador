@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cofre Didáctico – Día del Trabajador</title>
+<meta name="description" content="Plataforma educativa interactiva para el Día del Trabajador. Creada por Cofre Didáctico para nivel primario.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red:    #E63946;
+  --orange: #F4A261;
+  --yellow: #FFD60A;
+  --green:  #2A9D8F;
+  --blue:   #3A86FF;
+  --purple: #8338EC;
+  --white:  #FFFDF7;
+  --dark:   #1A1A2E;
+  --gray:   #6B7280;
+  --light:  #F3F4F6;
+  --card-shadow: 0 6px 0 rgba(0,0,0,0.15);
+  --radius: 1.2rem;
+  --font-title: 'Fredoka One', cursive;
+  --font-body:  'Nunito', sans-serif;
+}
+html { font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background: #EFF6FF;
+  color: var(--dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* Foco visible para accesibilidad */
+:focus-visible {
+  outline: 4px solid var(--yellow);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+button { cursor: pointer; font-family: var(--font-body); border: none; }
+
+/* ===== SCREEN READER ONLY ===== */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ===== HEADER ===== */
+#app-header {
+  background: var(--dark);
+  color: var(--white);
+  padding: 0.6rem 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  position: sticky; top: 0; z-index: 200;
+  border-bottom: 4px solid var(--yellow);
+}
+.brand { display: flex; align-items: center; gap: 0.7rem; }
+.brand-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--yellow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+}
+.brand-text h1 {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  color: var(--yellow);
+  line-height: 1;
+}
+.brand-text p { font-size: 0.65rem; color: #9CA3AF; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Score */
+.score-box {
+  background: var(--yellow);
+  color: var(--dark);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 1rem;
+  display: flex; align-items: center; gap: 0.4rem;
+  border: 3px solid rgba(0,0,0,0.15);
+}
+
+/* ===== NAV TABS ===== */
+#game-nav {
+  background: var(--dark);
+  padding: 0 1rem 0.6rem;
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#game-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  color: #D1D5DB;
+  font-weight: 700;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.35rem;
+  border: 2px solid transparent;
+}
+.tab-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+.tab-btn.active {
+  background: var(--yellow);
+  color: var(--dark);
+  border-color: rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+}
+.tab-icon { font-size: 1rem; }
+
+/* ===== GAME CONTAINER ===== */
+#game-container {
+  min-height: calc(100vh - 110px);
+  padding: 1.2rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ===== CARDS GENERIC ===== */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  border: 3px solid rgba(0,0,0,0.07);
+  padding: 1.2rem;
+}
+.game-section { display: none; }
+.game-section.active { display: block; }
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  color: var(--dark);
+  margin-bottom: 0.3rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.section-sub { color: var(--gray); font-size: 0.88rem; margin-bottom: 1.2rem; }
+
+/* ===== OVERLAY DE BIENVENIDA ===== */
+#overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: linear-gradient(135deg, #1A1A2E 0%, #16213E 60%, #0F3460 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 2rem; text-align: center;
+}
+.overlay-badge {
+  background: var(--yellow);
+  color: var(--dark);
+  font-size: 0.7rem; font-weight: 900;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.3rem 1rem; border-radius: 999px;
+  margin-bottom: 1.2rem;
+}
+.overlay-emoji {
+  font-size: 5rem; line-height: 1;
+  animation: float 3s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+.overlay-title {
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  color: var(--yellow);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+.overlay-sub { color: #CBD5E1; font-size: 1rem; margin-bottom: 0.8rem; max-width: 380px; }
+.overlay-credit { color: #64748B; font-size: 0.75rem; margin-bottom: 1.8rem; }
+.btn-start {
+  background: var(--red);
+  color: white;
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  padding: 1rem 3rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 0 #9B1C1C;
+  transition: all 0.15s;
+  border: none;
+}
+.btn-start:hover { transform: translateY(-3px); box-shadow: 0 11px 0 #9B1C1C; }
+.btn-start:active { transform: translateY(4px); box-shadow: 0 4px 0 #9B1C1C; }
+
+/* ===== JUEGO 1: EXPLORADOR ===== */
+#explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.oficio-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  border: 3px solid #E5E7EB;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.oficio-card:hover, .oficio-card:focus-visible {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 0 rgba(0,0,0,0.12);
+  border-color: var(--blue);
+}
+.oficio-emoji { font-size: 3.2rem; display: block; margin-bottom: 0.5rem; line-height: 1; }
+.oficio-name { font-weight: 800; font-size: 0.95rem; color: var(--dark); }
+.oficio-tool {
+  font-size: 0.68rem; color: var(--gray);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  font-weight: 700; margin-top: 0.2rem;
+}
+.btn-saber {
+  margin-top: 0.7rem;
+  background: var(--blue);
+  color: white;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700;
+  transition: background 0.2s;
+}
+.btn-saber:hover { background: #2563EB; }
+
+/* Modal info */
+#modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.6);
+  display: none; align-items: center; justify-content: center;
+  padding: 1.5rem;
+}
+#modal-overlay.open { display: flex; }
+#modal-box {
+  background: var(--white);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 380px; width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn { from { transform: scale(0.7); opacity: 0; } }
+#modal-emoji { font-size: 4rem; margin-bottom: 0.5rem; }
+#modal-title { font-family: var(--font-title); font-size: 1.8rem; color: var(--dark); margin-bottom: 0.3rem; }
+#modal-desc { color: var(--gray); font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.6; }
+#modal-tool { 
+  display: inline-block;
+  background: var(--yellow); color: var(--dark);
+  font-weight: 800; font-size: 0.8rem;
+  padding: 0.25rem 0.9rem; border-radius: 999px;
+  margin-bottom: 1.2rem;
+}
+#modal-close {
+  background: var(--red); color: white;
+  padding: 0.7rem 2.5rem; border-radius: 999px;
+  font-weight: 800; font-size: 1rem;
+  box-shadow: 0 5px 0 #9B1C1C;
+}
+#modal-close:active { transform: translateY(2px); box-shadow: 0 3px 0 #9B1C1C; }
+
+/* ===== JUEGO 2: PREGUNTAS ===== */
+#quiz-container { max-width: 600px; margin: 0 auto; }
+.quiz-progress {
+  background: #E5E7EB; border-radius: 999px; height: 12px; overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+.quiz-progress-bar {
+  height: 100%; background: var(--green);
+  border-radius: 999px;
+  transition: width 0.4s;
+}
+.quiz-q {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1rem;
+}
+.quiz-label { font-size: 0.75rem; font-weight: 800; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+.quiz-emoji-big { font-size: 4rem; display: block; margin-bottom: 0.6rem; }
+.quiz-question { font-size: 1.2rem; font-weight: 800; color: var(--dark); line-height: 1.4; }
+.quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.quiz-option {
+  background: var(--white);
+  border: 3px solid #E5E7EB;
+  border-radius: 1rem;
+  padding: 0.9rem 0.7rem;
+  font-weight: 700; font-size: 0.95rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  transition: all 0.2s;
+  text-align: left;
+}
+.quiz-option:hover:not(:disabled) { border-color: var(--blue); background: #EFF6FF; transform: translateY(-2px); }
+.quiz-option.correct { background: #D1FAE5; border-color: var(--green); color: #065F46; }
+.quiz-option.wrong   { background: #FEE2E2; border-color: var(--red);   color: #991B1B; }
+.quiz-option:disabled { cursor: not-allowed; }
+.quiz-option-emoji { font-size: 1.4rem; }
+.quiz-feedback {
+  text-align: center; padding: 1rem;
+  font-weight: 800; font-size: 1.05rem;
+  border-radius: var(--radius); margin-top: 0.8rem;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok  { background: #D1FAE5; color: #065F46; }
+.quiz-feedback.err { background: #FEE2E2; color: #991B1B; }
+.btn-next {
+  background: var(--green); color: white;
+  padding: 0.8rem 2rem; border-radius: 999px;
+  font-weight: 800; font-size: 1rem;
+  box-shadow: 0 5px 0 #1A7A6E;
+  display: none; margin-top: 0.8rem;
+}
+.btn-next.show { display: inline-block; }
+.btn-next:active { transform: translateY(2px); box-shadow: 0 3px 0 #1A7A6E; }
+
+/* Fin quiz */
+#quiz-end { display: none; text-align: center; padding: 2rem; }
+#quiz-end.show { display: block; }
+#quiz-end .score-big { font-family: var(--font-title); font-size: 4rem; color: var(--green); }
+#quiz-end p { font-size: 1.1rem; color: var(--gray); margin-bottom: 1.2rem; }
+.btn-replay {
+  background: var(--orange); color: white;
+  padding: 0.8rem 2rem; border-radius: 999px;
+  font-weight: 800; font-size: 1rem;
+  box-shadow: 0 5px 0 #B45309;
+}
+
+/* ===== JUEGO 3: MEMORIA ===== */
+#memory-section { max-width: 500px; margin: 0 auto; }
+#memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.mem-card {
+  aspect-ratio: 1;
+  border-radius: 1rem;
+  background: var(--dark);
+  border: 3px solid #374151;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+  user-select: none;
+}
+.mem-card:hover:not(.revealed):not(.matched) { transform: scale(1.05); border-color: var(--yellow); }
+.mem-card .mem-front { display: none; }
+.mem-card .mem-back  { display: block; font-size: 1.5rem; }
+.mem-card.revealed .mem-front { display: block; }
+.mem-card.revealed .mem-back  { display: none; }
+.mem-card.matched { background: #D1FAE5; border-color: var(--green); cursor: default; animation: matchPop 0.3s; }
+@keyframes matchPop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.mem-status { text-align: center; font-weight: 700; color: var(--gray); font-size: 0.9rem; }
+.btn-restart-mem {
+  background: var(--purple); color: white;
+  padding: 0.7rem 2rem; border-radius: 999px;
+  font-weight: 800; font-size: 0.95rem;
+  box-shadow: 0 5px 0 #5B21B6;
+  display: block; margin: 0.5rem auto 0;
+}
+.btn-restart-mem:active { transform: translateY(2px); box-shadow: 0 3px 0 #5B21B6; }
+
+/* ===== JUEGO 4: SOPA DE LETRAS ===== */
+#wordsearch-section { max-width: 500px; margin: 0 auto; }
+.ws-clue {
+  background: var(--dark); color: var(--yellow);
+  border-radius: 1rem; padding: 0.8rem 1rem;
+  display: flex; align-items: center; gap: 0.7rem;
+  margin-bottom: 0.8rem; font-weight: 800;
+}
+.ws-clue-emoji { font-size: 2rem; }
+.ws-clue-text { font-size: 0.9rem; color: #CBD5E1; }
+.ws-clue-word { font-family: var(--font-title); font-size: 1.5rem; }
+#ws-grid {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 1rem;
+  touch-action: none;
+}
+.ws-cell {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--white);
+  border: 2px solid #E5E7EB;
+  border-radius: 0.5rem;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 2vw, 1rem);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s, color 0.1s;
+}
+.ws-cell.selecting { background: var(--yellow); color: var(--dark); border-color: #D97706; }
+.ws-cell.found { background: var(--green); color: white; border-color: var(--green); }
+.ws-words {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.ws-word-badge {
+  background: #F3F4F6; color: var(--dark);
+  padding: 0.3rem 0.8rem; border-radius: 999px;
+  font-weight: 700; font-size: 0.8rem;
+  border: 2px solid #E5E7EB;
+  transition: all 0.3s;
+}
+.ws-word-badge.found { background: var(--green); color: white; border-color: var(--green); text-decoration: line-through; }
+
+/* ===== JUEGO 5: COMPLETAR FRASE ===== */
+#fill-section { max-width: 600px; margin: 0 auto; }
+.fill-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  border: 3px solid #E5E7EB;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.fill-emoji { font-size: 4rem; margin-bottom: 0.5rem; display: block; }
+.fill-phrase {
+  font-size: 1.2rem; font-weight: 800;
+  color: var(--dark); line-height: 1.6;
+  margin-bottom: 1rem;
+}
+.fill-blank {
+  display: inline-block;
+  border-bottom: 4px solid var(--blue);
+  min-width: 130px;
+  color: var(--blue);
+  font-family: var(--font-title);
+}
+.fill-options { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+.fill-opt {
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: #F3F4F6;
+  border: 2px solid #E5E7EB;
+  font-weight: 700; font-size: 0.95rem;
+  transition: all 0.2s;
+}
+.fill-opt:hover:not(:disabled) { background: #DBEAFE; border-color: var(--blue); }
+.fill-opt.correct { background: #D1FAE5; border-color: var(--green); color: #065F46; }
+.fill-opt.wrong { background: #FEE2E2; border-color: var(--red); color: #991B1B; }
+.fill-opt:disabled { cursor: not-allowed; }
+.fill-feedback { font-weight: 800; font-size: 1rem; margin-top: 0.6rem; min-height: 1.5rem; }
+
+/* ===== ACCESSIBILITY BAR ===== */
+#a11y-bar {
+  background: rgba(0,0,0,0.85);
+  padding: 0.4rem 0.8rem;
+  display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+  font-size: 0.75rem; color: #9CA3AF;
+}
+.a11y-btn {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.72rem; font-weight: 700;
+  transition: background 0.15s;
+}
+.a11y-btn:hover { background: rgba(255,255,255,0.3); }
+.a11y-label { color: #6B7280; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* Alto contraste */
+body.high-contrast {
+  background: black !important;
+  color: white !important;
+}
+body.high-contrast .card,
+body.high-contrast .oficio-card,
+body.high-contrast .quiz-q,
+body.high-contrast .quiz-option,
+body.high-contrast .fill-card,
+body.high-contrast .mem-card,
+body.high-contrast .ws-cell,
+body.high-contrast #modal-box {
+  background: #111 !important; color: white !important;
+  border-color: yellow !important;
+}
+body.high-contrast .quiz-option.correct { background: #004400 !important; }
+body.high-contrast .quiz-option.wrong   { background: #440000 !important; }
+/* Texto grande */
+body.large-text { font-size: 20px; }
+
+/* ===== FOOTER CREDIT ===== */
+footer {
+  text-align: center;
+  padding: 1.2rem;
+  color: #9CA3AF;
+  font-size: 0.75rem;
+  border-top: 2px solid #E5E7EB;
+  margin-top: 2rem;
+}
+footer strong { color: var(--dark); }
+
+/* ===== LIVE REGION ===== */
+#live-region { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  #explorer-grid { grid-template-columns: repeat(2, 1fr); }
+  .quiz-options { grid-template-columns: 1fr; }
+  #memory-grid { gap: 0.4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Lector de pantalla / live region -->
+<div id="live-region" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Saltar al contenido -->
+<a href="#game-container" class="sr-only" style="position:fixed;top:8px;left:8px;z-index:9999;background:var(--yellow);color:var(--dark);padding:0.5rem 1rem;border-radius:0.5rem;font-weight:800;">
+  Saltar al contenido principal
+</a>
+
+<!-- ===== OVERLAY INICIO ===== -->
+<div id="overlay" role="dialog" aria-modal="true" aria-labelledby="overlay-title">
+  <div class="overlay-badge">📅 1 de Mayo – Día del Trabajador</div>
+  <div class="overlay-emoji" aria-hidden="true">🎁</div>
+  <h1 class="overlay-title" id="overlay-title">¡COFRE DIDÁCTICO!</h1>
+  <p class="overlay-sub">¡Conocé y celebrá el trabajo de todas las personas! 5 juegos divertidos.</p>
+  <p class="overlay-credit">Creado por <strong style="color:#FFD60A">Cofre Didáctico</strong> – Nivel Primario</p>
+  <button class="btn-start" onclick="startApp()" id="btn-start">🚀 ¡EMPEZAR A JUGAR!</button>
+</div>
+
+<!-- ===== MODAL DE OFICIO ===== -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="closeModal(event)">
+  <div id="modal-box">
+    <div id="modal-emoji" aria-hidden="true"></div>
+    <div id="modal-title"></div>
+    <p id="modal-desc"></p>
+    <div id="modal-tool"></div>
+    <br>
+    <button id="modal-close" onclick="closeModal()" aria-label="Cerrar información">✖ Cerrar</button>
+  </div>
+</div>
+
+<!-- ===== ACCESIBILIDAD BAR ===== -->
+<div id="a11y-bar" role="toolbar" aria-label="Opciones de accesibilidad">
+  <span class="a11y-label" aria-hidden="true">Accesibilidad:</span>
+  <button class="a11y-btn" onclick="toggleHighContrast()" aria-pressed="false" id="btn-hc">🌗 Alto contraste</button>
+  <button class="a11y-btn" onclick="toggleLargeText()" aria-pressed="false" id="btn-lt">🔤 Texto grande</button>
+  <button class="a11y-btn" onclick="toggleAudio()" aria-pressed="true" id="btn-audio">🔊 Sonidos</button>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header id="app-header" role="banner">
+  <div class="brand">
+    <div class="brand-icon" aria-hidden="true">🎁</div>
+    <div class="brand-text">
+      <h1>Cofre Didáctico</h1>
+      <p>Día del Trabajador – Nivel Primario</p>
+    </div>
+  </div>
+
+  <nav id="game-nav" role="navigation" aria-label="Seleccionar juego">
+    <button class="tab-btn active" onclick="switchGame('explorer')" id="tab-explorer" aria-selected="true" role="tab">
+      <span class="tab-icon" aria-hidden="true">📚</span> Explorar
+    </button>
+    <button class="tab-btn" onclick="switchGame('quiz')" id="tab-quiz" aria-selected="false" role="tab">
+      <span class="tab-icon" aria-hidden="true">❓</span> Preguntas
+    </button>
+    <button class="tab-btn" onclick="switchGame('memory')" id="tab-memory" aria-selected="false" role="tab">
+      <span class="tab-icon" aria-hidden="true">🧩</span> Memoria
+    </button>
+    <button class="tab-btn" onclick="switchGame('wordsearch')" id="tab-wordsearch" aria-selected="false" role="tab">
+      <span class="tab-icon" aria-hidden="true">🔍</span> Sopa de Letras
+    </button>
+    <button class="tab-btn" onclick="switchGame('fill')" id="tab-fill" aria-selected="false" role="tab">
+      <span class="tab-icon" aria-hidden="true">✍️</span> Completar
+    </button>
+  </nav>
+
+  <div class="score-box" role="status" aria-label="Puntaje total" aria-live="polite">
+    <span aria-hidden="true">⭐</span>
+    <span id="global-score">0</span> pts
+  </div>
+</header>
+
+<!-- ===== CONTENIDO PRINCIPAL ===== -->
+<main id="game-container" tabindex="-1">
+
+  <!-- ===== G1: EXPLORADOR ===== -->
+  <section id="game-explorer" class="game-section active" aria-labelledby="title-explorer">
+    <h2 class="section-title" id="title-explorer"><span aria-hidden="true">📚</span> Explorá los oficios</h2>
+    <p class="section-sub">Tocá cada tarjeta para conocer más sobre cada trabajo. ¡Todos los trabajos son importantes!</p>
+    <div id="explorer-grid" role="list" aria-label="Oficios y profesiones"></div>
+  </section>
+
+  <!-- ===== G2: QUIZ ===== -->
+  <section id="game-quiz" class="game-section" aria-labelledby="title-quiz">
+    <h2 class="section-title" id="title-quiz"><span aria-hidden="true">❓</span> ¿Quién soy?</h2>
+    <p class="section-sub">Leé la pista y elegí la respuesta correcta. ¡Suma puntos respondiendo bien!</p>
+    <div id="quiz-container">
+      <div class="quiz-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del cuestionario">
+        <div class="quiz-progress-bar" id="quiz-progress-bar" style="width:0%"></div>
+      </div>
+      <div id="quiz-q-container"></div>
+      <div id="quiz-end">
+        <div class="overlay-emoji">🏆</div>
+        <div class="score-big" id="quiz-final-score">0</div>
+        <p>¡Terminaste las preguntas!</p>
+        <button class="btn-replay" onclick="initQuiz()">🔄 Jugar de nuevo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== G3: MEMORIA ===== -->
+  <section id="game-memory" class="game-section" aria-labelledby="title-memory">
+    <h2 class="section-title" id="title-memory"><span aria-hidden="true">🧩</span> Juego de Memoria</h2>
+    <p class="section-sub">¡Encontrá los pares! Hacé clic en dos tarjetas para emparejar el trabajador con su herramienta.</p>
+    <div id="memory-section">
+      <div class="mem-status" aria-live="polite" id="mem-status">Pares encontrados: 0 / 6</div>
+      <br>
+      <div id="memory-grid" role="grid" aria-label="Grilla de memoria"></div>
+      <button class="btn-restart-mem" onclick="initMemory()">🔄 Nueva partida</button>
+    </div>
+  </section>
+
+  <!-- ===== G4: SOPA DE LETRAS ===== -->
+  <section id="game-wordsearch" class="game-section" aria-labelledby="title-wordsearch">
+    <h2 class="section-title" id="title-wordsearch"><span aria-hidden="true">🔍</span> Sopa de Letras</h2>
+    <p class="section-sub">Buscá las palabras en la grilla. Tocá la primera letra y después la última para marcar la palabra.</p>
+    <div id="wordsearch-section">
+      <div class="ws-clue" aria-live="polite">
+        <span class="ws-clue-emoji" id="ws-emoji" aria-hidden="true">🔍</span>
+        <div>
+          <div class="ws-clue-text">Buscá estas palabras:</div>
+        </div>
+      </div>
+      <div class="ws-words" id="ws-badges" aria-label="Palabras a encontrar" role="list"></div>
+      <div id="ws-grid" role="grid" aria-label="Grilla de sopa de letras"></div>
+      <button class="btn-restart-mem" style="background:var(--orange);box-shadow:0 5px 0 #B45309;" onclick="initWordSearch()">🔄 Nueva sopa</button>
+    </div>
+  </section>
+
+  <!-- ===== G5: COMPLETAR FRASE ===== -->
+  <section id="game-fill" class="game-section" aria-labelledby="title-fill">
+    <h2 class="section-title" id="title-fill"><span aria-hidden="true">✍️</span> Completá la frase</h2>
+    <p class="section-sub">Elegí la palabra correcta para completar la oración sobre cada trabajador.</p>
+    <div id="fill-section">
+      <div id="fill-container"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <strong>Cofre Didáctico</strong> — Plataforma educativa para el Día del Trabajador, 1° de Mayo<br>
+  Diseñada para nivel primario con accesibilidad inclusiva · 2025
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+'use strict';
+
+// ─── DATOS ───────────────────────────────────────────────────────────────────
+const oficios = [
+  { id:'bombero',    n:'Bombero/a',    e:'👨‍🚒', herramienta:'🚒', he:'Camión de bomberos',
+    d:'Los bomberos y bomberas apagan incendios, rescatan personas y cuidan nuestra seguridad. ¡Son muy valientes!',
+    pista:'Apago fuegos con agua y me pongo un casco especial. Cuido que nada se queme.' },
+  { id:'doctor',     n:'Médico/a',      e:'👩‍⚕️', herramienta:'🩺', he:'Estetoscopio',
+    d:'Los médicos y médicas curan enfermedades, hacen controles y nos ayudan a estar sanos.',
+    pista:'Uso un estetoscopio para escuchar tu corazón y te receto remedios cuando estás enfermo.' },
+  { id:'cocinero',   n:'Cocinero/a',    e:'👨‍🍳', herramienta:'🥘', he:'Olla y sartén',
+    d:'Los cocineros y cocineras preparan comidas deliciosas en restaurantes, escuelas y hospitales.',
+    pista:'Mezclo ingredientes, los cocino en el fuego y preparo platos ricos para que comas.' },
+  { id:'granjera',   n:'Agricultor/a',  e:'👩‍🌾', herramienta:'🌽', he:'Cosecha',
+    d:'Los agricultores siembran y cosechan frutas, verduras y cereales que llegan a nuestra mesa.',
+    pista:'Trabajo en el campo, siembro semillas y cuido las plantas para que todos puedan comer.' },
+  { id:'maestro',    n:'Maestro/a',     e:'👨‍🏫', herramienta:'📚', he:'Libros y pizarrón',
+    d:'Los maestros y maestras nos enseñan a leer, escribir, matemáticas y muchas cosas más.',
+    pista:'Cada día entro al aula, escribo en el pizarrón y les enseño cosas nuevas a los chicos.' },
+  { id:'artista',    n:'Artista',       e:'👨‍🎨', herramienta:'🎨', he:'Pinceles y pinturas',
+    d:'Los artistas crean pinturas, esculturas, murales y otras obras de arte que embellecen el mundo.',
+    pista:'Con mis pinceles y colores creo imágenes hermosas para que todos las puedan ver.' },
+  { id:'cientifico', n:'Científico/a',  e:'👩‍🔬', herramienta:'🧪', he:'Tubos de ensayo',
+    d:'Los científicos investigan, hacen experimentos y descubren cosas que mejoran nuestra vida.',
+    pista:'Hago experimentos en mi laboratorio para descubrir cómo funcionan las cosas.' },
+  { id:'plomero',    n:'Plomero/a',     e:'🧰', herramienta:'🔧', he:'Llave y tuberías',
+    d:'Los plomeros arreglan caños, grifos y tuberías para que el agua llegue a nuestras casas.',
+    pista:'Arreglo los caños rotos de tu casa para que el agua funcione bien.' },
+  { id:'policia',    n:'Policía',       e:'👮', herramienta:'🚔', he:'Patrulla',
+    d:'Los policías cuidan el orden y la seguridad en nuestra comunidad.',
+    pista:'Cuido las calles del barrio y ayudo a que todos estén seguros.' },
+  { id:'cartero',    n:'Cartero/a',     e:'📬', herramienta:'✉️', he:'Cartas y paquetes',
+    d:'Los carteros llevan cartas, paquetes y noticias de un lado a otro.',
+    pista:'Cada día recorro las calles llevando cartas y paquetes a las casas.' },
+  { id:'veterinario',n:'Veterinario/a', e:'🐾', herramienta:'💉', he:'Jeringas y medicamentos',
+    d:'Los veterinarios cuidan la salud de los animales, los vacunan y los operan cuando es necesario.',
+    pista:'Me ocupo de que los animales estén sanos, los reviso y les doy remedios.' },
+  { id:'carpintero', n:'Carpintero/a',  e:'🪚', herramienta:'🔨', he:'Martillo y sierra',
+    d:'Los carpinteros trabajan la madera para hacer muebles, puertas y marcos de ventanas.',
+    pista:'Con madera y herramientas fabrico mesas, sillas y muebles para tu hogar.' },
+];
+
+// ─── ESTADO ──────────────────────────────────────────────────────────────────
+let totalScore = 0;
+let audioOn = true;
+const gameIds = ['explorer','quiz','memory','wordsearch','fill'];
+
+// ─── INICIO ──────────────────────────────────────────────────────────────────
+function startApp() {
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('game-container').focus();
+  initExplorer();
+  initQuiz();
+  initMemory();
+  initWordSearch();
+  initFill();
+  announce('¡Bienvenido a Cofre Didáctico! Explorá los oficios del Día del Trabajador.');
+}
+
+// ─── PUNTUACIÓN ──────────────────────────────────────────────────────────────
+function addScore(pts) {
+  totalScore += pts;
+  document.getElementById('global-score').textContent = totalScore;
+  announce(`¡Ganaste ${pts} puntos! Total: ${totalScore}`);
+  playBeep(660, 'sine', 0.15);
+}
+
+// ─── SONIDO ──────────────────────────────────────────────────────────────────
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playBeep(freq, type='sine', dur=0.1) {
+  if (!audioOn) return;
+  try {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = freq; o.type = type;
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    o.start(); o.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+
+// ─── ACCESIBILIDAD ───────────────────────────────────────────────────────────
+function announce(msg) {
+  const lr = document.getElementById('live-region');
+  lr.textContent = '';
+  requestAnimationFrame(() => { lr.textContent = msg; });
+}
+
+function toggleHighContrast() {
+  document.body.classList.toggle('high-contrast');
+  const on = document.body.classList.contains('high-contrast');
+  const btn = document.getElementById('btn-hc');
+  btn.setAttribute('aria-pressed', on);
+  announce(on ? 'Alto contraste activado' : 'Alto contraste desactivado');
+}
+
+function toggleLargeText() {
+  document.body.classList.toggle('large-text');
+  const on = document.body.classList.contains('large-text');
+  const btn = document.getElementById('btn-lt');
+  btn.setAttribute('aria-pressed', on);
+  announce(on ? 'Texto grande activado' : 'Texto grande desactivado');
+}
+
+function toggleAudio() {
+  audioOn = !audioOn;
+  const btn = document.getElementById('btn-audio');
+  btn.textContent = audioOn ? '🔊 Sonidos' : '🔇 Sonidos';
+  btn.setAttribute('aria-pressed', audioOn);
+  announce(audioOn ? 'Sonidos activados' : 'Sonidos desactivados');
+}
+
+// ─── NAVEGACIÓN ──────────────────────────────────────────────────────────────
+function switchGame(id) {
+  gameIds.forEach(g => {
+    document.getElementById('game-'+g).classList.remove('active');
+    const t = document.getElementById('tab-'+g);
+    t.classList.remove('active');
+    t.setAttribute('aria-selected','false');
+  });
+  document.getElementById('game-'+id).classList.add('active');
+  const tab = document.getElementById('tab-'+id);
+  tab.classList.add('active');
+  tab.setAttribute('aria-selected','true');
+  announce('Juego: ' + tab.textContent.trim());
+  playBeep(440,'sine',0.08);
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+function openModal(o) {
+  document.getElementById('modal-emoji').textContent  = o.e;
+  document.getElementById('modal-title').textContent  = o.n;
+  document.getElementById('modal-desc').textContent   = o.d;
+  document.getElementById('modal-tool').textContent   = '🛠️ Herramienta: ' + o.he;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-close').focus();
+  announce('Información sobre ' + o.n + ': ' + o.d);
+  playBeep(523,'sine',0.12);
+}
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('modal-overlay').classList.remove('open');
+});
+
+// ─── JUEGO 1: EXPLORADOR ─────────────────────────────────────────────────────
+function initExplorer() {
+  const grid = document.getElementById('explorer-grid');
+  grid.innerHTML = '';
+  oficios.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'oficio-card';
+    div.setAttribute('role','listitem');
+    div.setAttribute('tabindex','0');
+    div.setAttribute('aria-label', `${o.n}. Herramienta: ${o.he}. Hacé clic para saber más.`);
+    div.innerHTML = `
+      <span class="oficio-emoji" aria-hidden="true">${o.e}</span>
+      <div class="oficio-name">${o.n}</div>
+      <div class="oficio-tool">🛠️ ${o.he}</div>
+      <button class="btn-saber" aria-label="Saber más sobre ${o.n}" tabindex="-1">Saber más ℹ️</button>
+    `;
+    const open = () => openModal(o);
+    div.addEventListener('click', open);
+    div.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); open(); } });
+    grid.appendChild(div);
+  });
+}
+
+// ─── JUEGO 2: QUIZ ───────────────────────────────────────────────────────────
+let quizQueue = [], quizIdx = 0, quizRight = 0;
+const quizMessages = {
+  ok: ['¡Genial! ✅','¡Muy bien! 🎉','¡Correcto! ⭐','¡Excelente! 🏆'],
+  err:['¡Casi! La respuesta era: ','Seguí intentando. Era: ','¡No importa! La correcta era: '],
+};
+
+function initQuiz() {
+  document.getElementById('quiz-end').classList.remove('show');
+  document.getElementById('quiz-q-container').style.display = '';
+  quizQueue = shuffle(oficios).map(o => ({
+    q:   o.pista,
+    e:   o.e,
+    key: o.id,
+    ans: o.n,
+    opts: shuffle([o.n, ...shuffle(oficios.filter(x=>x.id!==o.id)).slice(0,3).map(x=>x.n)])
+  }));
+  quizIdx = 0; quizRight = 0;
+  showQuizQ();
+}
+
+function showQuizQ() {
+  const bar = document.getElementById('quiz-progress-bar');
+  const pct = Math.round((quizIdx/quizQueue.length)*100);
+  bar.style.width = pct+'%';
+  bar.parentElement.setAttribute('aria-valuenow', pct);
+
+  if (quizIdx >= quizQueue.length) {
+    document.getElementById('quiz-q-container').style.display = 'none';
+    document.getElementById('quiz-final-score').textContent = quizRight + ' / ' + quizQueue.length;
+    document.getElementById('quiz-end').classList.add('show');
+    announce(`¡Terminaste! Respondiste bien ${quizRight} de ${quizQueue.length} preguntas.`);
+    return;
+  }
+
+  const q = quizQueue[quizIdx];
+  const c = document.getElementById('quiz-q-container');
+  c.innerHTML = `
+    <div class="quiz-q" role="article" aria-label="Pregunta ${quizIdx+1} de ${quizQueue.length}">
+      <div class="quiz-label">Pista ${quizIdx+1} de ${quizQueue.length}</div>
+      <span class="quiz-emoji-big" aria-hidden="true">${q.e}</span>
+      <p class="quiz-question">${q.q}</p>
+    </div>
+    <div class="quiz-options" role="group" aria-label="Opciones de respuesta">
+      ${q.opts.map((opt,i) => `
+        <button class="quiz-option" onclick="checkQuiz(this,'${opt}','${q.ans}')"
+          aria-label="Opción ${i+1}: ${opt}">
+          <span class="quiz-option-emoji" aria-hidden="true">${getEmoji(opt)}</span> ${opt}
+        </button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb" role="alert"></div>
+    <div style="text-align:center">
+      <button class="btn-next" id="btn-next" onclick="nextQuiz()">Siguiente ➡️</button>
+    </div>
+  `;
+}
+
+function getEmoji(name) {
+  const o = oficios.find(x=>x.n===name);
+  return o ? o.e : '❓';
+}
+
+function checkQuiz(btn, chosen, correct) {
+  const all = document.querySelectorAll('.quiz-option');
+  all.forEach(b => b.disabled = true);
+  const ok = chosen === correct;
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) all.forEach(b => { if(b.textContent.trim().includes(correct)) b.classList.add('correct'); });
+
+  const fb = document.getElementById('qfb');
+  if (ok) {
+    fb.textContent = quizMessages.ok[Math.floor(Math.random()*quizMessages.ok.length)];
+    fb.className = 'quiz-feedback show ok';
+    addScore(100); quizRight++;
+    playBeep(523,'sine',0.15);
+  } else {
+    fb.textContent = quizMessages.err[Math.floor(Math.random()*quizMessages.err.length)] + correct;
+    fb.className = 'quiz-feedback show err';
+    playBeep(200,'sawtooth',0.15);
+  }
+  document.getElementById('btn-next').classList.add('show');
+  announce(fb.textContent);
+}
+
+function nextQuiz() { quizIdx++; showQuizQ(); }
+
+// ─── JUEGO 3: MEMORIA ────────────────────────────────────────────────────────
+let memFlipped = [], memMatched = 0, memLocked = false;
+
+function initMemory() {
+  const grid = document.getElementById('memory-grid');
+  grid.innerHTML = '';
+  memFlipped = []; memMatched = 0; memLocked = false;
+  document.getElementById('mem-status').textContent = 'Pares encontrados: 0 / 6';
+
+  const subset = shuffle(oficios).slice(0,6);
+  const pairs = shuffle([
+    ...subset.map(o=>({id:o.id, face:o.e, label:o.n, type:'trabajador'})),
+    ...subset.map(o=>({id:o.id, face:o.herramienta, label:'Herramienta de '+o.n, type:'herramienta'})),
+  ]);
+
+  pairs.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.setAttribute('role','gridcell');
+    card.setAttribute('tabindex','0');
+    card.setAttribute('aria-label', `Tarjeta ${idx+1}. Oculta.`);
+    card.dataset.id   = item.id;
+    card.dataset.type = item.type;
+    card.innerHTML = `<span class="mem-back" aria-hidden="true">❓</span><span class="mem-front" aria-hidden="true">${item.face}</span>`;
+
+    const flip = () => {
+      if (memLocked || card.classList.contains('revealed') || card.classList.contains('matched')) return;
+      card.classList.add('revealed');
+      card.setAttribute('aria-label', `Tarjeta ${idx+1}. ${item.label}.`);
+      memFlipped.push({card, item});
+      playBeep(440,'sine',0.08);
+      if (memFlipped.length === 2) checkMemPair();
+    };
+    card.addEventListener('click', flip);
+    card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); flip(); } });
+    grid.appendChild(card);
+  });
+}
+
+function checkMemPair() {
+  memLocked = true;
+  const [a, b] = memFlipped;
+  if (a.item.id === b.item.id && a.item.type !== b.item.type) {
+    a.card.classList.add('matched'); b.card.classList.add('matched');
+    a.card.setAttribute('aria-label','Par encontrado: '+a.item.label);
+    b.card.setAttribute('aria-label','Par encontrado: '+b.item.label);
+    memMatched++;
+    document.getElementById('mem-status').textContent = `Pares encontrados: ${memMatched} / 6`;
+    announce(`¡Par correcto! ${memMatched} de 6 pares.`);
+    addScore(150);
+    memFlipped = []; memLocked = false;
+    if (memMatched === 6) { announce('¡Felicitaciones! Encontraste todos los pares.'); playBeep(880,'sine',0.4); }
+  } else {
+    announce('No son par. Intentá de nuevo.');
+    playBeep(200,'sawtooth',0.1);
+    setTimeout(() => {
+      a.card.classList.remove('revealed'); b.card.classList.remove('revealed');
+      a.card.setAttribute('aria-label','Tarjeta oculta.');
+      b.card.setAttribute('aria-label','Tarjeta oculta.');
+      memFlipped = []; memLocked = false;
+    }, 900);
+  }
+}
+
+// ─── JUEGO 4: SOPA DE LETRAS ─────────────────────────────────────────────────
+const WS_WORDS = ['BOMBERO','MAESTRO','DOCTOR','CARTERO','ARTISTA','GRANJA'];
+const GRID_COLS = 10, GRID_ROWS = 10;
+let wsGrid = [], wsFound = [], wsSelecting = false, wsStart = null;
+
+function initWordSearch() {
+  wsFound = []; wsSelecting = false; wsStart = null;
+  const badges = document.getElementById('ws-badges');
+  badges.innerHTML = '';
+  WS_WORDS.forEach(w => {
+    const b = document.createElement('span');
+    b.className = 'ws-word-badge';
+    b.textContent = w;
+    b.id = 'badge-'+w;
+    b.setAttribute('role','listitem');
+    badges.appendChild(b);
+  });
+
+  // Build grid
+  wsGrid = Array.from({length:GRID_ROWS}, ()=> Array(GRID_COLS).fill(''));
+  WS_WORDS.forEach(word => placeWord(word));
+  // Fill random letters
+  const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for(let r=0;r<GRID_ROWS;r++) for(let c=0;c<GRID_COLS;c++)
+    if(!wsGrid[r][c]) wsGrid[r][c] = alpha[Math.floor(Math.random()*alpha.length)];
+
+  renderWsGrid();
+}
+
+function placeWord(word) {
+  const dirs = [[0,1],[1,0],[1,1]];
+  let placed = false, tries = 0;
+  while(!placed && tries < 200) {
+    tries++;
+    const [dr,dc] = dirs[Math.floor(Math.random()*dirs.length)];
+    const r = Math.floor(Math.random()*GRID_ROWS);
+    const c = Math.floor(Math.random()*GRID_COLS);
+    if(r+dr*(word.length-1)<GRID_ROWS && c+dc*(word.length-1)<GRID_COLS) {
+      let ok = true;
+      for(let i=0;i<word.length;i++)
+        if(wsGrid[r+dr*i][c+dc*i] && wsGrid[r+dr*i][c+dc*i]!==word[i]) { ok=false; break; }
+      if(ok) { for(let i=0;i<word.length;i++) wsGrid[r+dr*i][c+dc*i]=word[i]; placed=true; }
+    }
+  }
+}
+
+function renderWsGrid() {
+  const g = document.getElementById('ws-grid');
+  g.innerHTML = '';
+  g.style.gridTemplateColumns = `repeat(${GRID_COLS},1fr)`;
+
+  for(let r=0;r<GRID_ROWS;r++) for(let c=0;c<GRID_COLS;c++) {
+    const cell = document.createElement('div');
+    cell.className = 'ws-cell';
+    cell.textContent = wsGrid[r][c];
+    cell.dataset.r = r; cell.dataset.c = c;
+    cell.setAttribute('role','gridcell');
+    cell.setAttribute('aria-label', `Letra ${wsGrid[r][c]}, fila ${r+1}, columna ${c+1}`);
+    cell.setAttribute('tabindex','0');
+
+    const handleSelect = () => selectCell(cell, r, c);
+    cell.addEventListener('click', handleSelect);
+    cell.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleSelect(); } });
+    g.appendChild(cell);
+  }
+}
+
+function selectCell(cell, r, c) {
+  if (!wsSelecting) {
+    wsStart = {r,c,cell}; wsSelecting = true;
+    cell.classList.add('selecting');
+    announce(`Letra ${wsGrid[r][c]} seleccionada como inicio.`);
+  } else {
+    // Collect cells between start and end
+    const er = r, ec = c;
+    const sr = wsStart.r, sc = wsStart.c;
+    const cells = getCellsBetween(sr,sc,er,ec);
+    const word = cells.map(([cr,cc])=>wsGrid[cr][cc]).join('');
+    const rev = word.split('').reverse().join('');
+
+    const found = WS_WORDS.find(w => w===word || w===rev);
+    cells.forEach(([cr,cc]) => {
+      const el = document.querySelector(`.ws-cell[data-r="${cr}"][data-c="${cc}"]`);
+      if (el) el.classList.remove('selecting');
+    });
+
+    if (found && !wsFound.includes(found)) {
+      wsFound.push(found);
+      cells.forEach(([cr,cc]) => {
+        const el = document.querySelector(`.ws-cell[data-r="${cr}"][data-c="${cc}"]`);
+        if (el) el.classList.add('found');
+      });
+      document.getElementById('badge-'+found).classList.add('found');
+      addScore(200);
+      announce(`¡Encontraste la palabra ${found}!`);
+      if (wsFound.length === WS_WORDS.length) { announce('¡Encontraste todas las palabras! ¡Campeón!'); playBeep(880,'sine',0.5); }
+    } else {
+      announce('No es una palabra. Intentá de nuevo.');
+      playBeep(200,'sawtooth',0.08);
+    }
+    document.querySelectorAll('.ws-cell.selecting').forEach(el => el.classList.remove('selecting'));
+    wsSelecting = false; wsStart = null;
+  }
+}
+
+function getCellsBetween(sr,sc,er,ec) {
+  const cells = [];
+  const dr = Math.sign(er-sr), dc = Math.sign(ec-sc);
+  let r=sr, c=sc;
+  while(true) {
+    cells.push([r,c]);
+    if(r===er && c===ec) break;
+    r+=dr; c+=dc;
+    if(cells.length>20) break;
+  }
+  return cells;
+}
+
+// ─── JUEGO 5: COMPLETAR FRASE ─────────────────────────────────────────────────
+const fillData = [
+  { e:'👨‍🚒', phrase:'El bombero usa una {blank} para apagar el incendio.',
+    blank:'manguera', opts:['manguera','esponja','sombrilla','regadera'] },
+  { e:'👩‍⚕️', phrase:'La médica escucha tu corazón con el {blank}.',
+    blank:'estetoscopio', opts:['estetoscopio','microscopio','telescopio','caleidoscopio'] },
+  { e:'👨‍🍳', phrase:'El cocinero prepara la comida en una {blank} grande.',
+    blank:'olla', opts:['olla','botella','maceta','pecera'] },
+  { e:'👨‍🏫', phrase:'El maestro escribe en el {blank} para que aprendamos.',
+    blank:'pizarrón', opts:['pizarrón','espejo','cuadro','ventana'] },
+  { e:'👩‍🌾', phrase:'La agricultora siembra las {blank} en la tierra.',
+    blank:'semillas', opts:['semillas','monedas','piedras','hojas'] },
+  { e:'👮', phrase:'El policía cuida la {blank} para que estemos seguros.',
+    blank:'seguridad', opts:['seguridad','diversión','alegría','velocidad'] },
+  { e:'📬', phrase:'El cartero lleva las {blank} a las casas.',
+    blank:'cartas', opts:['cartas','plantas','mascotas','estrellas'] },
+  { e:'🪚', phrase:'El carpintero usa el {blank} para clavar la madera.',
+    blank:'martillo', opts:['martillo','tenedor','peine','termómetro'] },
+];
+
+let fillCurrent = 0, fillAnswered = 0;
+
+function initFill() {
+  fillCurrent = 0; fillAnswered = 0;
+  const container = document.getElementById('fill-container');
+  container.innerHTML = '';
+  shuffle(fillData).forEach((item, idx) => {
+    const parts = item.phrase.split('{blank}');
+    const div = document.createElement('div');
+    div.className = 'fill-card';
+    div.id = 'fill-'+idx;
+    const optsHtml = shuffle(item.opts).map(opt => `
+      <button class="fill-opt" 
+        onclick="checkFill(this,'${opt}','${item.blank}','fill-fb-${idx}')"
+        aria-label="Opción: ${opt}">
+        ${opt}
+      </button>`).join('');
+    div.innerHTML = `
+      <span class="fill-emoji" aria-hidden="true">${item.e}</span>
+      <p class="fill-phrase" aria-label="Completá la frase: ${item.phrase.replace('{blank}','...')}">
+        ${parts[0]}<span class="fill-blank" id="fill-slot-${idx}" aria-live="polite">___</span>${parts[1]}
+      </p>
+      <div class="fill-options" role="group" aria-label="Opciones">${optsHtml}</div>
+      <p class="fill-feedback" id="fill-fb-${idx}" role="alert"></p>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function checkFill(btn, chosen, correct, fbId) {
+  const parent = btn.closest('.fill-card');
+  const btns = parent.querySelectorAll('.fill-opt');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById(fbId);
+  const slotId = fbId.replace('fill-fb-','fill-slot-');
+  const slot = document.getElementById(slotId);
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    slot.textContent = correct;
+    slot.style.color = 'var(--green)';
+    fb.textContent = '¡Perfecto! ✅';
+    fb.style.color = 'var(--green)';
+    addScore(80);
+    announce(`¡Correcto! La respuesta es ${correct}.`);
+    playBeep(523,'sine',0.12);
+  } else {
+    btn.classList.add('wrong');
+    btns.forEach(b => { if(b.textContent.trim()===correct) b.classList.add('correct'); });
+    slot.textContent = correct;
+    slot.style.color = 'var(--red)';
+    fb.textContent = `La correcta era: ${correct} ❌`;
+    fb.style.color = 'var(--red)';
+    announce(`Incorrecto. La respuesta correcta era ${correct}.`);
+    playBeep(200,'sawtooth',0.1);
+  }
+}
+
+// ─── UTILIDADES ──────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+</script>
+</body>
+</html>
